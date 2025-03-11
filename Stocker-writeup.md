@@ -7,6 +7,7 @@ nmap -p- --open --min-rate 5000 -vvv -n -Pn 10.10.11.196 -oG allPorts
 nmap -sCV -p22, 80 10.10.11.196 -oN targetedPorts
 gobuster dir -u http://stocker.htb/ -w /usr/share/SecLists/Discovery/Web-Content/directory-list-2.3-medium.txt -t 200
 # gobuster for subdomains
+gobuster vhost -u http://stocker.htb/ -w /usr/share/SecLists/Discovery/DNS/subdomains-top1million-110000.txt -t 200 --apend-domain
 ```
 ## Exploiting nosql injection: Login bypass
 
